@@ -1,30 +1,39 @@
 // C file for the circular buffer in user space
-#include <buffer.h>
-#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include "buffer.h"
+
+struct ring_buffer_421 *usrBuf = NULL;
 
 long init_buffer_421(void){
 	// Allocate space for the buffer
 	// Check the buffer was not already allocated
-	if(usrBuf->read = NULL){
+	if(usrBuf == NULL){
 		// Allocate the space for the ring buffer and first node
-		ring_buffer_421 *usrBuf = malloc(sizeOf(ring_buffer_421));
-		node_421 *usrNode = malloc(sizeOf(node_421));
+		struct ring_buffer_421 *usrBuf = malloc(sizeof(ring_buffer_421_t));
+
+		struct node_421 *usrNode = malloc(sizeof(node_421_t));
 		//Set the read and write to the first node (since it's empty)
-		usrBuf->read, usrBuf->write = &usrNode;
+		usrBuf->read, usrBuf->write = usrNode;
 		usrBuf->length = 0;
 
 		// Count how many nodes are in the buffer
 		int count = 1;
+		struct node_421 *nextNode = malloc(sizeof(node_421_t));
+
+		// Create the nodes of the ring buffer
 		while(count < 20){
-			node_421 *nextNode = malloc(sizeOf(node_421));
-			nextNode->data = 0;
-			usrNode->next = &nextNode
-			usrNode = nextNode
+			nextNode->data = -1;
+			usrNode->next = nextNode;
+			usrNode = nextNode;
 			count++;
 		}
 
 		// Set the ending node next to the read node
 		nextNode->next = usrBuf->read;
+
+		// Free the nextNode
+		//free(nextNode);
 
 		// Return 0 if buffer successfully created
 		return 0;
@@ -36,7 +45,7 @@ long init_buffer_421(void){
 
 long insert_buffer_421(int i){
 	// Check that buffer exists
-	if(usrBuf->length >= 0){
+	if(usrBuf != NULL){
 		// Return -1 if buffer is already full
 		if(usrBuf->length == SIZE_OF_BUFFER)
 			return -1;
@@ -51,6 +60,7 @@ long insert_buffer_421(int i){
 
 		// Return 0 if successful
 		return 0;
+	}
 
 	// Return -1 if buffer does not exist, or any other scenario
 	return -1;
@@ -58,13 +68,13 @@ long insert_buffer_421(int i){
 
 long print_buffer_421(void){
 	// Check that buffer exists
-	if(usrBuf->length >= 0){
+	if(usrBuf != NULL){
 		// Print contents
 		// Temporary node for the node being printed
 		int count = 0;
 		while(count < SIZE_OF_BUFFER){
-			printf("%\d", ring_buffer_421->read->data);
-			ring_buffer_421->read = ring_buffer_421->read->next;
+			printf("%d", usrBuf->read->data);
+			usrBuf->read = usrBuf->read->next;
 			count++;
 		}
 
@@ -78,12 +88,12 @@ long print_buffer_421(void){
 
 long delete_buffer_421(void){
 	// Check that buffer exists
-	if(usrBuf->length >= 0){
+	if(usrBuf != NULL){
 		// Free the buffer
 		struct node_421 *temp;
-		while(ring_buffer_421->read != NULL){
-			temp = ring_buffer_421->read;
-			ring_buffer_421->read = temp->next;
+		while(usrBuf->read != NULL){
+			temp = usrBuf->read;
+			usrBuf->read = temp->next;
 			free(temp);
 		}
 
