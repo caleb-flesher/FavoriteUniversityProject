@@ -2,15 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "buffer.h"
+#include <stdbool.h>
 
-struct ring_buffer_421 *usrBuf = NULL;
+struct ring_buffer_421 *usrBuf;
+bool isInitialized = false;
 
 long init_buffer_421(void){
 	// Allocate space for the buffer
 	// Check the buffer was not already allocated
-	if(usrBuf == NULL){
+	if(isInitialized == false){
 		// Allocate the space for the ring buffer and first node
-		struct ring_buffer_421 *usrBuf = malloc(sizeof(ring_buffer_421_t));
+		usrBuf = malloc(sizeof(ring_buffer_421_t));
 
 		struct node_421 *usrNode = malloc(sizeof(node_421_t));
 		//Set the read and write to the first node (since it's empty)
@@ -23,7 +25,7 @@ long init_buffer_421(void){
 
 		// Create the nodes of the ring buffer
 		while(count < 20){
-			nextNode->data = -1;
+			nextNode->data = 0;
 			usrNode->next = nextNode;
 			usrNode = nextNode;
 			count++;
@@ -32,8 +34,12 @@ long init_buffer_421(void){
 		// Set the ending node next to the read node
 		nextNode->next = usrBuf->read;
 
+		usrBuf->read = usrBuf->write;
+
 		// Free the nextNode
 		//free(nextNode);
+		// Set the buffer to initialized
+		isInitialized = true;
 
 		// Return 0 if buffer successfully created
 		return 0;
@@ -45,18 +51,21 @@ long init_buffer_421(void){
 
 long insert_buffer_421(int i){
 	// Check that buffer exists
-	if(usrBuf != NULL){
+	if(isInitialized == true){
 		// Return -1 if buffer is already full
 		if(usrBuf->length == SIZE_OF_BUFFER)
 			return -1;
-
 		// Insert the data into the write node
 		usrBuf->write->data = i;
+		//printf("%i\n", i);
+		//printf("%i\n", usrBuf->write->data);
 
 		// Set write node of the buffer to the next empty node, and increase the length of
 		//	usrBuf
 		usrBuf->write = usrBuf->write->next;
 		usrBuf->length += 1;
+
+		print_buffer_421();
 
 		// Return 0 if successful
 		return 0;
@@ -68,14 +77,15 @@ long insert_buffer_421(int i){
 
 long print_buffer_421(void){
 	// Check that buffer exists
-	if(usrBuf != NULL){
+	if(isInitialized == true){
 		// Print contents
 		// Temporary node for the node being printed
 		int count = 0;
-		while(count < SIZE_OF_BUFFER){
-			printf("%d", usrBuf->read->data);
+		while(count < usrBuf->length){
+			printf("%i\n", usrBuf->read->data);
 			usrBuf->read = usrBuf->read->next;
 			count++;
+			printf("done\n");
 		}
 
 		// Return 0 if successful
@@ -88,7 +98,7 @@ long print_buffer_421(void){
 
 long delete_buffer_421(void){
 	// Check that buffer exists
-	if(usrBuf != NULL){
+	if(isInitialized == true){
 		// Free the buffer
 		struct node_421 *temp;
 		while(usrBuf->read != NULL){
@@ -100,6 +110,7 @@ long delete_buffer_421(void){
 		// Free the buffer
 		free(usrBuf);
 
+		isInitialized = false;
 		// Return 0 if successful
 		return 0;
 	}
