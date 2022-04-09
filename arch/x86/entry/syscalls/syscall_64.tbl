@@ -362,6 +362,10 @@
 438	common	pidfd_getfd		sys_pidfd_getfd
 439	common	faccessat2		sys_faccessat2
 440	common	process_madvise		sys_process_madvise
+442	common	init_buffer_421		sys_init_buffer_421
+443	common	insert_buffer_421	sys_insert_buffer_421
+444	common	print_buffer_421	sys_print_buffer_421
+445	common	delete_buffer_421	sys_delete_buffer_421
 
 #
 # Due to a historical design error, certain syscalls are numbered differently

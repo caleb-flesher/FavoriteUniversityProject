@@ -4,7 +4,6 @@
 #include <string.h>
 #include <errno.h>
 #include <linux/kernel.h>
-#include <sys/syscall.h>
 
 #define __NR_init_buffer_421 442
 #define __NR_insert_buffer_421 443

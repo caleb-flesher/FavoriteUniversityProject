@@ -1,20 +1,24 @@
 // C file for the circular buffer in kernel space
 #include "buffer.h"
-#include <stdbool.h>
+//#include <stdbool.h>
 #include <linux/kernel.h>
-#include <sys/syscall.h>
+#include <linux/syscalls.h>
 
 struct ring_buffer_421 *usrBuf;
-bool isInitialized = false;
+struct node_421 *frstNode;
+struct node_421 *nextNode;
+struct node_421 *temp;
+int *isInitialized = 0;
+int *count;
 
 SYSCALL_DEFINE0(init_buffer_421){
         // Allocate space for the buffer
         // Check the buffer was not already allocated
-        if(isInitialized == false){
+        if(*isInitialized == 0){
                 // Allocate the space for the ring buffer and first node
                 usrBuf = kmalloc(sizeof(ring_buffer_421_t), GFP_KERNEL);
 
-                struct node_421 *frstNode = kmalloc(sizeof(node_421_t), GFP_KERNEL);
+                frstNode = kmalloc(sizeof(node_421_t), GFP_KERNEL);
                 frstNode->data = 0;
 
                 //Set the read and write to the first node (since it's empty)
@@ -22,16 +26,16 @@ SYSCALL_DEFINE0(init_buffer_421){
                 usrBuf->length = 0;
 
                 // Count how many nodes are in the buffer
-                int count = 1;
+                *count = 1;
 
                 // Create the nodes of the ring buffer
-                while(count < SIZE_OF_BUFFER){
-                        struct node_421 *nextNode = kmalloc(sizeof(node_421_t), GFP_KERNEL);
+                while(*count < SIZE_OF_BUFFER){
+                        nextNode = kmalloc(sizeof(node_421_t), GFP_KERNEL);
                         nextNode->data = 0;
                         frstNode->next = nextNode;
                         frstNode = nextNode;
                         usrBuf->write = nextNode;
-                        count++;
+                        *count += 1;
                 }
 
                 // Set the ending node next to the read node
@@ -41,7 +45,7 @@ SYSCALL_DEFINE0(init_buffer_421){
                 // Free the nextNode
                 //free(nextNode);
                 // Set the buffer to initialized
-                isInitialized = true;
+                *isInitialized = 1;
                 // Return 0 if buffer successfully created
                 return 0;
         }
@@ -50,9 +54,9 @@ SYSCALL_DEFINE0(init_buffer_421){
         return -1;
 }
 
-SYSCALL_DEFINE1(insert_buffer_421, i){
+SYSCALL_DEFINE1(insert_buffer_421, int, i){
         // Check that buffer exists
-        if(isInitialized == true){
+        if(*isInitialized == 1){
                 // Return -1 if buffer is already full
                 if(usrBuf->length == SIZE_OF_BUFFER)
                         return -1;
@@ -78,14 +82,14 @@ SYSCALL_DEFINE1(insert_buffer_421, i){
 
 SYSCALL_DEFINE0(print_buffer_421){
         // Check that buffer exists
-        if(isInitialized == true){
+        if(*isInitialized == 1){
                 // Print contents
                 // Temporary node for the node being printed
-                int count = 0;
-                while(count < SIZE_OF_BUFFER){
+                *count = 0;
+                while(*count < SIZE_OF_BUFFER){
                         printk("%i\n", usrBuf->read->data);
                         usrBuf->read = usrBuf->read->next;
-                        count++;
+                        *count += 1;;
                 }
 
                 // Return 0 if successful
@@ -98,9 +102,8 @@ SYSCALL_DEFINE0(print_buffer_421){
 
 SYSCALL_DEFINE0(delete_buffer_421){
         // Check that buffer exists
-        if(isInitialized == true){
+        if(*isInitialized == 1){
                 // Free the buffer
-                struct node_421 *temp;
                 while(usrBuf->length > 0){
                         temp = usrBuf->read;
                         usrBuf->read = temp->next;
@@ -110,10 +113,10 @@ SYSCALL_DEFINE0(delete_buffer_421){
                 }
 
                 // Free the buffer
-                free(usrBuf);
+                kfree(usrBuf);
 
                 // Set buffer initialized back to false
-                isInitialized = false;
+                *isInitialized = 0;
 
                 // Return 0 if successful
                 return 0;
