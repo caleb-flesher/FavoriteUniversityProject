@@ -1,20 +1,25 @@
 // C file for the circular buffer in kernel space
-#include <stdlib.h>
-#include <stdio.h>
 #include "buffer.h"
 #include <stdbool.h>
+#include <linux/kernel.h>
+#include <sys/syscall.h>
+
+#define __NR_init_buffer_421 442
+#define __NR_insert_buffer_421 443
+#define __NR_print_buffer_421 444
+#define __NR_delete_buffer_421 445
 
 struct ring_buffer_421 *usrBuf;
 bool isInitialized = false;
 
-long init_buffer_421(void){
+SYSCALL_DEFINE0(init_buffer_421){
         // Allocate space for the buffer
         // Check the buffer was not already allocated
         if(isInitialized == false){
                 // Allocate the space for the ring buffer and first node
-                usrBuf = malloc(sizeof(ring_buffer_421_t));
+                usrBuf = kmalloc(sizeof(ring_buffer_421_t), GFP_KERNEL);
 
-                struct node_421 *frstNode = malloc(sizeof(node_421_t));
+                struct node_421 *frstNode = kmalloc(sizeof(node_421_t), GFP_KERNEL);
                 frstNode->data = 0;
 
                 //Set the read and write to the first node (since it's empty)
@@ -26,7 +31,7 @@ long init_buffer_421(void){
 
                 // Create the nodes of the ring buffer
                 while(count < SIZE_OF_BUFFER){
-                        struct node_421 *nextNode = malloc(sizeof(node_421_t));
+                        struct node_421 *nextNode = kmalloc(sizeof(node_421_t), GFP_KERNEL);
                         nextNode->data = 0;
                         frstNode->next = nextNode;
                         frstNode = nextNode;
@@ -50,7 +55,7 @@ long init_buffer_421(void){
         return -1;
 }
 
-long insert_buffer_421(int i){
+SYSCALL_DEFINE1(insert_buffer_421, i){
         // Check that buffer exists
         if(isInitialized == true){
                 // Return -1 if buffer is already full
@@ -76,35 +81,49 @@ long insert_buffer_421(int i){
         return -1;
 }
 
-long print_buffer_421(void){
+SYSCALL_DEFINE0(print_buffer_421){
         // Check that buffer exists
         if(isInitialized == true){
                 // Print contents
                 // Temporary node for the node being printed
                 int count = 0;
                 while(count < SIZE_OF_BUFFER){
-                        printf("%i\n", usrBuf->read->data);
+                        printk("%i\n", usrBuf->read->data);
                         usrBuf->read = usrBuf->read->next;
                         count++;
                 }
 
+                // Return 0 if successful
+                return 0;
+        }
 
-
-
-long init_buffer_421(void){
-	ring_buffer_421 *cirBuf = malloc(sizeOf(ring_buffer_421));
-	cirBuf->length = SIZE_OF_BUFFER;
-
+        // Return -1 if buffer is not initialized
+        return -1;
 }
 
-long insert_buffer_421(int i){
+SYSCALL_DEFINE0(delete_buffer_421){
+        // Check that buffer exists
+        if(isInitialized == true){
+                // Free the buffer
+                struct node_421 *temp;
+                while(usrBuf->length > 0){
+                        temp = usrBuf->read;
+                        usrBuf->read = temp->next;
+                        kfree(temp);
+                        temp = NULL;
+                        usrBuf->length--;
+                }
 
-}
+                // Free the buffer
+                free(usrBuf);
 
-long print_buffer_421(){
-	if (
-}
+                // Set buffer initialized back to false
+                isInitialized = false;
 
-long delete_buffer_421(){
+                // Return 0 if successful
+                return 0;
+        }
 
+        // Return -1 if buffer does not exist
+        return -1;
 }
