@@ -4,11 +4,6 @@
 #include <linux/kernel.h>
 #include <sys/syscall.h>
 
-#define __NR_init_buffer_421 442
-#define __NR_insert_buffer_421 443
-#define __NR_print_buffer_421 444
-#define __NR_delete_buffer_421 445
-
 struct ring_buffer_421 *usrBuf;
 bool isInitialized = false;
 

@@ -28,10 +28,16 @@ long del_buff_syscall(void){
 }
 
 int main(int argc, char *argv[]){
-	printf("Creating the buffer in kernel space.\n");
-	printf("%d\n", init_buff_syscall());
+	long initb;
+	initb = init_buff_syscall();
+	if(initb < 0){
+		perror("Initialization of buffer failed.");
+	}
+	else{
+		printf("Buffer was initialized. Please check dmesg.\n");
+	}
 
-	printf("Deleting the buffer from kernel space.\n");
+	printf("Deleting the buffer from kernel space. Please check the dmesg...\n");
 	printf("%d\n", del_buff_syscall());
 
 	return 0;
