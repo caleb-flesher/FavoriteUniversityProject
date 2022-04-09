@@ -36,8 +36,16 @@ int main(int argc, char *argv[]){
 	printf("Testing deletion of buffer after being created. This will return 0...\n");
 	printf("%d\n", delete_buffer_421());
 
-	printf("Testing inserting into buffer after deletion. This will return -1...\n");
-	printf("%d\n", insert_buffer_421(1));
+	printf("Testing inserting, print, and deleting into buffer after deletion. ");
+	printf("This will return -1 for all results...\n");
+	printf("There is a while loop that runs 5 times, thus there are many -1 values.\n");
+	count = 0;
+	while(count < 5){
+		printf("%d\n", insert_buffer_421(count));
+		printf("%d\n", print_buffer_421());
+		printf("%d\n", delete_buffer_421());
+		count = count + 1;
+	}
 
 	return 0;
 }

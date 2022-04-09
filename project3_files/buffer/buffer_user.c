@@ -107,7 +107,6 @@ long delete_buffer_421(void){
 			free(temp);
 			temp = NULL;
 			usrBuf->length--;
-			printf("here\n");
 		}
 
 		// Free the buffer
