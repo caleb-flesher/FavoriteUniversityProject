@@ -7,7 +7,7 @@
 struct ring_buffer_421 *usrBuf;
 bool isInitialized = false;
 
-long u_init_buffer_421(void){
+long init_buffer_421(void){
 	// Allocate space for the buffer
 	// Check the buffer was not already allocated
 	if(isInitialized == false){
@@ -38,8 +38,6 @@ long u_init_buffer_421(void){
 		usrBuf->write->next = usrBuf->read;
 		usrBuf->read = usrBuf->write;
 
-		// Free the nextNode
-		//free(nextNode);
 		// Set the buffer to initialized
 		isInitialized = true;
 		// Return 0 if buffer successfully created
@@ -58,15 +56,11 @@ long insert_buffer_421(int i){
 			return -1;
 		// Insert the data into the write node
 		usrBuf->write->data = i;
-		//printf("%i\n", i);
-		//printf("%i\n", usrBuf->write->data);
 
 		// Set write node of the buffer to the next empty node, and increase the length of
 		//	usrBuf
 		usrBuf->write = usrBuf->write->next;
 		usrBuf->length += 1;
-
-		//print_buffer_421();
 
 		// Return 0 if successful
 		return 0;

@@ -16,7 +16,6 @@ int main(int argc, char *argv[]){
 	printf("Testing initialization of buffer. This will return 0...\n");
 	printf("%d\n", init_buffer_421());
 
-	// Causing issues
 	printf("Testing initialization of buffer after already being initialized. This will return -1...\n");
 	printf("%d\n", init_buffer_421());
 
@@ -30,7 +29,7 @@ int main(int argc, char *argv[]){
 	printf("Testing inserting into buffer after filled. This will return -1...\n");
 	printf("%d\n", insert_buffer_421(1));
 
-	printf("Testing printing of buffer after being created. This will return the buffer and 0...\n");
+	printf("Testing printing of buffer after being created. This will return the buffer and lastly 0...\n");
 	printf("%d\n", print_buffer_421());
 
 	printf("Testing deletion of buffer after being created. This will return 0...\n");

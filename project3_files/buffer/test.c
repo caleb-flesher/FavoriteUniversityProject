@@ -1,5 +1,6 @@
 #include "buffer.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -15,7 +16,7 @@ long init_buff_syscall(void){
 	return syscall(__NR_init_buffer_421);
 }
 
-long insert_buff_syscall(void){
+long insert_buff_syscall(int i){
         return syscall(__NR_insert_buffer_421);
 }
 
@@ -29,16 +30,86 @@ long del_buff_syscall(void){
 
 int main(int argc, char *argv[]){
 	long initb;
-	initb = init_buff_syscall();
-	if(initb < 0){
-		perror("Initialization of buffer failed.");
+	long insrb;
+	long prntb;
+	long deltb;
+
+	// Delete the buffer before it is initialized.
+	deltb = del_buff_syscall();
+	if(deltb < 0){
+		perror("Deletion  of buffer failed");
 	}
 	else{
-		printf("Buffer was initialized. Please check dmesg.\n");
+		printf("Buffer was deleted.\n");
 	}
 
-	//printf("Deleting the buffer from kernel space. Please check the dmesg...\n");
-	//printf("%d\n", del_buff_syscall());
+	// Insert into the buffer before it is initialized
+	insrb = insert_buff_syscall(1);
+	if(insrb < 0){
+		perror("Insert into buffer failed");
+	}
+	else{
+		printf("Value was inserted into buffer.\n");
+	}
+
+	// Print the buffer before it is initialized
+	prntb = print_buff_syscall();
+	if(prntb < 0){
+		perror("Printing of buffer failed");
+	}
+	else{
+		printf("Buffer was printed. Please check dmesg.\n");
+	}
+
+	// Initialize the buffer
+	initb = init_buff_syscall();
+	if(initb < 0){
+		perror("Initialization of buffer failed");
+	}
+	else{
+		printf("Buffer was initialized.\n");
+	}
+
+	// Print the buffer after being initialized
+	prntb = print_buff_syscall();
+	if(prntb < 0){
+		perror("Printing of buffer failed");
+	}
+	else{
+		printf("Buffer was printed. Please check dmesg.\n");
+	}
+
+	// Insert into the buffer after it is initialized
+	int count = 0;
+	while(count < 20){
+		insrb = insert_buff_syscall(rand());
+		if(insrb < 0){
+			perror("Insert into buffer failed");
+		}
+		else{
+			printf("Value was inserted into buffer.\n");
+		}
+
+		count++;
+	}
+
+	// Print the buffer after being initialized
+	prntb = print_buff_syscall();
+	if(prntb < 0){
+		perror("Printing of buffer failed");
+	}
+	else{
+		printf("Buffer was printed. Please check dmesg.\n");
+	}
+
+	// Delete the buffer before it is initialized.
+	deltb = del_buff_syscall();
+	if(deltb < 0){
+		perror("Deletion  of buffer failed\n");
+	}
+	else{
+		printf("Buffer was deleted.\n");
+	}
 
 	return 0;
 }
