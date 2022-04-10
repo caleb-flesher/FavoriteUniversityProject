@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <linux/kernel.h>
+#include <sys/syscall.h>
 
 #define __NR_init_buffer_421 442
 #define __NR_insert_buffer_421 443
@@ -36,8 +37,8 @@ int main(int argc, char *argv[]){
 		printf("Buffer was initialized. Please check dmesg.\n");
 	}
 
-	printf("Deleting the buffer from kernel space. Please check the dmesg...\n");
-	printf("%d\n", del_buff_syscall());
+	//printf("Deleting the buffer from kernel space. Please check the dmesg...\n");
+	//printf("%d\n", del_buff_syscall());
 
 	return 0;
 }

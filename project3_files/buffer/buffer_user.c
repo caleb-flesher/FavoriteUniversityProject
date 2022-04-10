@@ -7,7 +7,7 @@
 struct ring_buffer_421 *usrBuf;
 bool isInitialized = false;
 
-long init_buffer_421(void){
+long u_init_buffer_421(void){
 	// Allocate space for the buffer
 	// Check the buffer was not already allocated
 	if(isInitialized == false){

@@ -1377,4 +1377,6 @@ asmlinkage long sys_insert_buffer_421(int i);
 asmlinkage long sys_print_buffer_421(void);
 asmlinkage long sys_delete_buffer_421(void);
 
+asmlinkage long sys_hello(void);
+
 #endif

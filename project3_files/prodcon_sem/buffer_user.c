@@ -9,7 +9,41 @@ static sem_t empty_count;
 
 long init_buffer_421(void) {
 	// Write your code to initialize buffer
+       	// Allocate space for the buffer
+        // Check the buffer was not already allocated
+        if(isInitialized == false){
+                // Allocate the space for the ring buffer and first node
+                usrBuf = malloc(sizeof(bb_buffer_421_t));
 
+                struct node_421 *frstNode = malloc(sizeof(bb_node_421_t));
+                frstNode->data = 0;
+
+                //Set the read and write to the first node (since it's empty)
+                usrBuf->read = frstNode;
+                usrBuf->length = 0;
+
+                // Count how many nodes are in the buffer
+                int count = 1;
+
+                // Create the nodes of the ring buffer
+                while(count < SIZE_OF_BUFFER){
+                        struct node_421 *nextNode = malloc(sizeof(node_421_t));
+                        nextNode->data = 0;
+                        frstNode->next = nextNode;
+                        frstNode = nextNode;
+                        usrBuf->write = nextNode;
+                        count++;
+                }
+
+                // Set the ending node next to the read node
+                usrBuf->write->next = usrBuf->read;
+                usrBuf->read = usrBuf->write;
+
+                // Free the nextNode
+                //free(nextNode);
+                // Set the buffer to initialized
+                isInitialized = true;
+	}
 	// Initialize your semaphores here.
 	
 	return 0;
