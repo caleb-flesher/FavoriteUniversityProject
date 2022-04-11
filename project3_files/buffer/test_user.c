@@ -3,7 +3,6 @@
 #include "buffer_user.c"
 
 int main(int argc, char *argv[]){
-	struct ring_buffer_421 *usrBuf;
 	printf("Testing deletion of buffer before being created. This will return -1...\n");
 	printf("%d\n", delete_buffer_421());
 

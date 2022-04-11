@@ -17,7 +17,7 @@ long init_buff_syscall(void){
 }
 
 long insert_buff_syscall(int i){
-        return syscall(__NR_insert_buffer_421);
+        return syscall(__NR_insert_buffer_421, i);
 }
 
 long print_buff_syscall(void){
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]){
 	// Insert into the buffer after it is initialized
 	int count = 0;
 	while(count < 20){
-		insrb = insert_buff_syscall(count);
+		insrb = insert_buff_syscall(count + 1);
 		if(insrb < 0){
 			perror("Insert into buffer failed");
 		}

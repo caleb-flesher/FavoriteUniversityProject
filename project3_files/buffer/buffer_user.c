@@ -60,7 +60,7 @@ long insert_buffer_421(int i){
 		// Set write node of the buffer to the next empty node, and increase the length of
 		//	usrBuf
 		usrBuf->write = usrBuf->write->next;
-		usrBuf->length += 1;
+		usrBuf->length++;
 
 		// Return 0 if successful
 		return 0;

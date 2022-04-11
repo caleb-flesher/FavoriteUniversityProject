@@ -31,13 +31,12 @@ SYSCALL_DEFINE0(init_buffer_421){
                         nextNode->data = 0;
                         frstNode->next = nextNode;
                         frstNode = nextNode;
-                        usrBuf->write = nextNode;
                         count++;
                 }
 
                 // Set the ending node next to the read node
-                usrBuf->write->next = usrBuf->read;
-                usrBuf->read = usrBuf->write;
+                frstNode->next = usrBuf->read;
+                usrBuf->write = usrBuf->read;
 
                 // Set the buffer to initialized
                 isInitialized = 1;
@@ -77,7 +76,7 @@ SYSCALL_DEFINE0(print_buffer_421){
                 // Temporary node for the node being printed
                 count = 0;
                 while(count < SIZE_OF_BUFFER){
-                        printk("%i\n", usrBuf->read->data);
+                        printk("%d\n", usrBuf->read->data);
                         usrBuf->read = usrBuf->read->next;
                         count++;
                 }
