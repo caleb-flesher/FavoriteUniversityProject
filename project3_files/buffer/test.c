@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
 	}
 
 	// Insert into the buffer before it is initialized
-	insrb = insert_buff_syscall(1);
+	insrb = insert_buff_syscall(0);
 	if(insrb < 0){
 		perror("Insert into buffer failed");
 	}
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]){
 	// Insert into the buffer after it is initialized
 	int count = 0;
 	while(count < 20){
-		insrb = insert_buff_syscall(rand());
+		insrb = insert_buff_syscall(count);
 		if(insrb < 0){
 			perror("Insert into buffer failed");
 		}
@@ -109,6 +109,15 @@ int main(int argc, char *argv[]){
 	}
 	else{
 		printf("Buffer was deleted.\n");
+	}
+
+	// Print the buffer after being deleted
+	prntb = print_buff_syscall();
+	if(prntb < 0){
+		perror("Printing of buffer failed");
+	}
+	else{
+		printf("Buffer was printed. Please check dmesg.\n");
 	}
 
 	return 0;
