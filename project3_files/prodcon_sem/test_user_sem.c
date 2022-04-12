@@ -67,8 +67,6 @@ int main(int argc, char *argv[]){
 	print_semaphores();
 
 	// Create the producer and consumer
-	// Seed differently with srand(time(null)) and srand(time(1))
-
 	printf("Testing enqueue into buffer after being created. This will return 0...\n");
         pthread_create(&threadId1, NULL, producer, NULL);
 
@@ -77,8 +75,6 @@ int main(int argc, char *argv[]){
 
 	pthread_join(threadId1, NULL);
 	pthread_join(threadId2, NULL);
-
-	// Use usleep instead of sleep for fast execution
 
         printf("Testing deletion of buffer after being created. This will return 0...\n");
         printf("%d\n", delete_buffer_421());
