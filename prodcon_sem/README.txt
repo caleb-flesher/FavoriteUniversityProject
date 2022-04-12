@@ -21,11 +21,11 @@ General information
 - 8192 MD of memory was allocated for the VM.
 
 User space:
-- The files must be run in the "buffer" directory. The directory path should read similarly to "/usr/src/cmsc421-project3/project3-files/buffer".
+- The files must be run in the "prodcon_sem" directory. The directory path should read similarly to "/usr/src/cmsc421-project3/prodcon_sem".
 - A Makefile for the user space implementation is not provided.
-- In order to compile the test_user.c file, compile the file using the following command: "gcc test_user.c -o test_user".
-- In order to run the file, run the file using the following command: "./test_user".
-- Valgrind is operational with this file. To run the file with valgrind, use the following command: "valgrind ./test_user".
+- In order to compile the test_user.c file, compile the file using the following command: "gcc -pthread buffer_user_sem.c test_user_sem.c -o test_user_sem".
+- In order to run the file, run the file using the following command: "./test_user_sem".
+- Valgrind is operational with this file. To run the file with valgrind, use the following command: "valgrind ./test_user_sem".
 - The code should free all the memory/no memory should be allocated after the test_user.c file is executed.
 
 Kernel Space:
@@ -39,14 +39,12 @@ Kernel Space:
 
 -------METHODS-------
 
-I began by creating the user space code, in the buffer_user.c file. I struggled with creating the buffer at the start because I did not know a good
-method of checking to see if the buffer was already initialized. After asking the class in the Discord server for some information to help me, the
-solution I used was to create a static boolean to indicate if the buffer was initialized or not initialized. The print function prints the entirety
-of the buffer regardless if data has been entered into it or not, which is how I understood the outline of the project.
+I began by creating the user space code, in the buffer_user_sem.c file. I was able to copy the function from the buffer_user.c file from part 1,
+then I initialized the semaphores for the enqueue and dequeue functions. I had trouble understanding how these were supposed to be implemented,
+but after reading some documentation at length I found a method that created them as they are now. Then I started working on the enqueue and
+dequeue functions, in an effort to just have them alter the semaphores so I could make sure they are being accessed. Both of the functions are operational,
+however I have found there is an odd issue with the dequeue function. I do not know why, but the dequeue function will fall behind and dequeue the
+buffer nodes after enqueue is finished. While this is good because it does not leave queued nodes in the buffer, the function prints zeros at the end of
+execution in this scenario. I chose to move forward and bring the functions to kernel space. See the details below for the kernel space implementation.
 
-After spending time getting the user space implementation working, I moved to the kernel space. For the buffer.c file, I transferred much of the
-contents from the buffer_user.c file and changed the functions (such as free to kfree and printf to printk) so they would work properly in kernel
-space. After lengthy debugging, I found one of the major issues in the kernel space was printing the contents of the buffer. The kernel
-implementation would print a random garbage value repeatedly. After speaking with Rushabh, I discovered I never passed the parameter into the syscall
-for the insert function. Upon this discovery, I edited the test file, recompiled, and run the test with success.
 

@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 
-static int ITERATE_MAX = 100;
+static int ITERATE_MAX = 1000;
 static int INPUT_VAL = 0;
 static int RESTART_INPUT = 9;
 

@@ -1,38 +1,38 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "buffer_sem.h"
-#include <stdbool.h>
 #include <pthread.h>
-#include <string.h>
+#include <linux/kernel.h>
+#include <linux/syscalls.h>
 
 static bb_buffer_421_t *buffer;
 static sem_t mutex;
 static sem_t fill_count;
 static sem_t empty_count;
-static bool isInitialized = false;
+static int isInitialized = 0;
+static int count;
 
 long init_buffer_421(void) {
 	// Write your code to initialize buffer
        	// Allocate space for the buffer
         // Check the buffer was not already allocated
         if(isInitialized == false){
+                struct bb_node_421 *frstNode;
                 // Allocate the space for the ring buffer and first node
-                buffer = malloc(sizeof(bb_buffer_421_t));
-
-                struct bb_node_421 *frstNode = malloc(sizeof(bb_node_421_t));
-                memcpy(frstNode->data, "", DATA_LENGTH);
+                buffer = kmalloc(sizeof(bb_buffer_421_t), GFP_KERNEL);
+		frstNode = kmalloc(sizeof(bb_node_421_t), GFP_KERNEL);
+                copy_from_user(frstNode->data, "", DATA_LENGTH);
 
                 //Set the read and write to the first node (since it's empty)
                 buffer->read = frstNode;
                 buffer->length = 0;
 
                 // Count how many nodes are in the buffer
-                int count = 1;
+                count = 1;
 
                 // Create the nodes of the ring buffer
                 while(count < SIZE_OF_BUFFER){
-                        struct bb_node_421 *nextNode = malloc(sizeof(bb_node_421_t));
-	                memcpy(nextNode->data, "", DATA_LENGTH);
+                        struct bb_node_421 *nextNode;
+			nextNode = kmalloc(sizeof(bb_node_421_t), GFP_KERNEL);
+	                copy_from_user(nextNode->data, "", DATA_LENGTH);
                         frstNode->next = nextNode;
                         frstNode = nextNode;
                         buffer->write = nextNode;
@@ -46,7 +46,7 @@ long init_buffer_421(void) {
                 // Free the nextNode
                 //free(nextNode);
                 // Set the buffer to initialized
-                isInitialized = true;
+                isInitialized = 1;
 	}
 	// Initialize your semaphores here.
 	sem_init(&mutex, 0, 1);
@@ -59,16 +59,16 @@ long init_buffer_421(void) {
 long enqueue_buffer_421(char * data) {
 	// Write your code to enqueue data into the buffer
 	// Check that buffer exists
-	if(isInitialized == true){
+	if(isInitialized == 1){
 		// Use the empty_count semaphore to BLOCK if the buffer is empty
 		sem_wait(&empty_count);
 		sem_wait(&mutex);
 
 		// Write the data from the passed char parameter to the buffer's write pointer
-                memcpy(buffer->write->data, data, DATA_LENGTH);
+                copy_from_user(buffer->write->data, data, DATA_LENGTH);
 		buffer->length++;
 
-		printf("Enqueue: %c\n", buffer->write->data[0]);
+		printk("Enqueue: %c\n", buffer->write->data[0]);
 
 		buffer->write = buffer->write->next;
 
@@ -85,15 +85,15 @@ long enqueue_buffer_421(char * data) {
 long dequeue_buffer_421(char * data) {
 	// Write your code to dequeue data from the buffer
         // Check that buffer exists
-	if(isInitialized == true){
+	if(isInitialized == 1){
 		// Use the empty_count semaphore to BLOCK if the buffer is empty
 		sem_wait(&fill_count);
 		sem_wait(&mutex);
 
-		printf("Dequeue: %c\n", buffer->write->data[0]);
+		printk("Dequeue: %c\n", buffer->write->data[0]);
 
 		// Write the buffer's read point into the passed char parameter
-                memcpy(data, buffer->write->data, DATA_LENGTH);
+                copy_to_user(data, buffer->write->data, DATA_LENGTH);
 		buffer->length--;
 
 		buffer->read = buffer->read->next;
@@ -119,23 +119,23 @@ long delete_buffer_421(void) {
 
 	// write your code to delete buffer and other unwanted components
         // Check that buffer exists
-        if(isInitialized == true){
+        if(isInitialized == 1){
                 // Free the buffer
                 struct bb_node_421 *temp;
-		int count = SIZE_OF_BUFFER;
+		count = SIZE_OF_BUFFER;
                 while(count > 0){
                         temp = buffer->read;
                         buffer->read = temp->next;
-                        free(temp);
+                        kfree(temp);
                         temp = NULL;
 			count--;
                 }
 
                 // Free the buffer
-                free(buffer);
+                kfree(buffer);
 
                 // Set buffer initialized back to false
-                isInitialized = false;
+                isInitialized = 0;
 
                 // Return 0 if successful
                 return 0;
@@ -152,10 +152,10 @@ void print_semaphores(void) {
 	// YOU DO NOT NEED TO IMPLEMENT THIS FOR KERNEL SPACE.
 	int value;
 	sem_getvalue(&mutex, &value);
-	printf("sem_t mutex = %d\n", value);
+	printk("sem_t mutex = %d\n", value);
 	sem_getvalue(&fill_count, &value);
-	printf("sem_t fill_count = %d\n", value);
+	printk("sem_t fill_count = %d\n", value);
 	sem_getvalue(&empty_count, &value);
-	printf("sem_t empty_count = %d\n", value);
+	printk("sem_t empty_count = %d\n", value);
 	return;
 }

@@ -3,9 +3,9 @@
 #include <linux/kernel.h>
 #include <linux/syscalls.h>
 
-struct ring_buffer_421 *usrBuf;
-int isInitialized = 0;
-int count;
+static ring_buffer_421 *usrBuf;
+static int isInitialized = 0;
+static int count;
 
 SYSCALL_DEFINE0(init_buffer_421){
         // Allocate space for the buffer
