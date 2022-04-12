@@ -5,18 +5,24 @@
 #include <unistd.h>
 #include <time.h>
 
-static int ITERATE_MAX = 1000;
+static int ITERATE_MAX = 100;
 static int INPUT_VAL = 0;
 static int RESTART_INPUT = 9;
 
+
 void* producer(void* arg) {
+	srand(time(NULL));
+
 	int prd_cnt = 0;
 	int chr_cnt = 0;
-	char *input[DATA_LENGTH];
+	char pass[DATA_LENGTH] = {};
+	char *input = pass;
 
 	while (prd_cnt < ITERATE_MAX){
+		usleep(rand() % 10);
+		char c = INPUT_VAL + '0';
 		while (chr_cnt < DATA_LENGTH){
-			*input[chr_cnt] = INPUT_VAL + '0';
+			pass[chr_cnt] = c;
 			chr_cnt++;
 		}
 
@@ -25,9 +31,8 @@ void* producer(void* arg) {
 		else
 			INPUT_VAL++;
 
-		srand(time(NULL));
-		usleep(rand());
-		enqueue_buffer_421(*input);
+		printf("Produced: %c\n", pass[0]);
+		enqueue_buffer_421(input);
 		print_semaphores();
 		prd_cnt++;
 		chr_cnt = 0;
@@ -35,15 +40,17 @@ void* producer(void* arg) {
 }
 
 void* consumer(void* arg){
+	srand(time(0));
 	int con_cnt = 0;
-	char *emp_inp[DATA_LENGTH];
-	*emp_inp[0] = INPUT_VAL + '0';
+	char tracker = 0;
+	char consume[DATA_LENGTH] = {};
+	char *con_inp = consume;
         while (con_cnt < ITERATE_MAX){
-		srand(time(0) + 1);
-                usleep(rand());
-                dequeue_buffer_421(NULL);
+                usleep(rand() % 10);
+                dequeue_buffer_421(con_inp);
+		printf("Consumed: %c\n", con_inp[0]);
                 print_semaphores();
-                con_cnt++;
+		con_cnt++;
         }
 }
 
@@ -54,6 +61,7 @@ int main(int argc, char *argv[]){
         printf("Testing deletion of buffer before being created. This will return -1...\n");
         printf("%d\n", delete_buffer_421());
 
+	// The "random" string is included below only to satidfy the parameters of the function
 	printf("Testing enqueue into buffer before being created. This will return -1...\n");
         printf("%d\n", enqueue_buffer_421("random"));
 
@@ -68,10 +76,13 @@ int main(int argc, char *argv[]){
 
 	// Create the producer and consumer
 	printf("Testing enqueue into buffer after being created. This will return 0...\n");
-        pthread_create(&threadId1, NULL, producer, NULL);
+        printf("%d\n", pthread_create(&threadId1, NULL, producer, "val"));
 
 	printf("Testing dequeue from buffer after being created. This will return 0...\n");
-        pthread_create(&threadId2, NULL, consumer, NULL);
+        printf("%d\n", pthread_create(&threadId2, NULL, consumer, "val"));
+
+//        printf("Testing deletion of buffer during enqueue/dequeue. This will return -1...\n");
+//        printf("%d\n", delete_buffer_421());
 
 	pthread_join(threadId1, NULL);
 	pthread_join(threadId2, NULL);

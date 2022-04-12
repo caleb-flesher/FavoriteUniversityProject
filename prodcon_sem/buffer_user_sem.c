@@ -50,19 +50,21 @@ long init_buffer_421(void) {
 	}
 	// Initialize your semaphores here.
 	sem_init(&mutex, 0, 1);
-	sem_init(&fill_count, 0, SIZE_OF_BUFFER);
-	sem_init(&empty_count, 0, 0);
+	sem_init(&empty_count, 0, SIZE_OF_BUFFER);
+	sem_init(&fill_count, 0, 0);
 	return 0;
 }
 
 
 long enqueue_buffer_421(char * data) {
 	// Write your code to enqueue data into the buffer
-        // Check that buffer exists
+	// Check that buffer exists
 	if(isInitialized == true){
 		// Use the empty_count semaphore to BLOCK if the buffer is empty
 		sem_wait(&empty_count);
 		sem_wait(&mutex);
+
+		printf("Enqueue: %c\n", data[0]);
 
 		// Write the data to the buffer's write pointer
                 memcpy(buffer->write->data, data, DATA_LENGTH);
@@ -87,8 +89,10 @@ long dequeue_buffer_421(char * data) {
 		sem_wait(&fill_count);
 		sem_wait(&mutex);
 
-		// Write the data into the buffer's read pointer
-                memcpy(buffer->write->data, data, DATA_LENGTH);
+		printf("Dequeue: %c\n", buffer->write->data[0]);
+
+		// Write the buffer's read point into the passed char parameter
+                memcpy(data, buffer->write->data, DATA_LENGTH);
 		buffer->length--;
 		buffer->read = buffer->read->next;
 
@@ -105,7 +109,6 @@ long dequeue_buffer_421(char * data) {
 long delete_buffer_421(void) {
 	// Tip: Don't call this while any process is waiting to enqueue or dequeue.
 	// Check the values of each of the semaphores. If not 0 do not allow the call.
-	
 
 	// Destroy the semaphores
 	sem_destroy(&mutex);

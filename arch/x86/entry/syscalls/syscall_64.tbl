@@ -366,6 +366,11 @@
 443	common	insert_buffer_421	sys_insert_buffer_421
 444	common	print_buffer_421	sys_print_buffer_421
 445	common	delete_buffer_421	sys_delete_buffer_421
+446	common	init_buffer_sem_421	sys_init_buffer_sem_421
+447	common	enqueue_buffer_sem_421	sys_enqueue_buffer_sem_421
+448	common	dequeue_buffer_sem_421	sys_dequeue_buffer_sem_421
+449	common	delete_buffer_sem_421	sys_delete_buffer_sem_421
+450	common	print_buffer_sem_421	sys_print_buffer_sem_421	
 
 #
 # Due to a historical design error, certain syscalls are numbered differently
