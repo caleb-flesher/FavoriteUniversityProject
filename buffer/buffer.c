@@ -93,13 +93,14 @@ SYSCALL_DEFINE0(delete_buffer_421){
 	// Check that buffer exists
         if(isInitialized == 1){
                 // Free the buffer
-                while(usrBuf->length > 0){
+		count = 0;
+                while(count < SIZE_OF_BUFFER){
 			struct node_421 *temp;
                         temp = usrBuf->read;
                         usrBuf->read = temp->next;
                         kfree(temp);
                         temp = NULL;
-                        usrBuf->length--;
+			count++;
                 }
 
                 // Free the buffer

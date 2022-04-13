@@ -4,8 +4,8 @@
 #include "buffer.h"
 #include <stdbool.h>
 
-struct ring_buffer_421 *usrBuf;
-bool isInitialized = false;
+static struct ring_buffer_421 *usrBuf;
+static bool isInitialized = false;
 
 long init_buffer_421(void){
 	// Allocate space for the buffer
@@ -95,12 +95,13 @@ long delete_buffer_421(void){
 	if(isInitialized == true){
 		// Free the buffer
 		struct node_421 *temp;
-		while(usrBuf->length > 0){
+		int count = 0;
+		while(count < SIZE_OF_BUFFER){
 			temp = usrBuf->read;
 			usrBuf->read = temp->next;
 			free(temp);
 			temp = NULL;
-			usrBuf->length--;
+			count++;
 		}
 
 		// Free the buffer

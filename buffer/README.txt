@@ -6,6 +6,7 @@ Class Section:	Section 03
 
 There are 7 files in this folder for the project, this folder being part 1. The files included are as follows:
 - buffer.h
+- README.txt
 
 Kernel Space
 - buffer.c
@@ -18,7 +19,7 @@ User Space
 
 General information
 - On my VM, which is the Debian VM provided to us from the beginning of the semester, I have configured for the use of 6 cores.
-- 8192 MD of memory was allocated for the VM.
+- 8192 MB of memory was allocated for the VM.
 
 User space:
 - The files must be run in the "buffer" directory. The directory path should read similarly to "/usr/src/cmsc421-project3/buffer".

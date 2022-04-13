@@ -1,14 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "buffer_sem.h"
+#include "buffer_mon.h"
 #include <stdbool.h>
 #include <pthread.h>
 #include <string.h>
 
-static bb_buffer_421_t *buffer;
-static sem_t mutex;
-static sem_t fill_count;
-static sem_t empty_count;
+static ring_buffer_421_t *buffer;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t fill_count = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t empty_count = PTHREAD_COND_INITIALIZER;
 static bool isInitialized = false;
 
 long init_buffer_421(void) {
@@ -17,9 +17,9 @@ long init_buffer_421(void) {
         // Check the buffer was not already allocated
         if(isInitialized == false){
                 // Allocate the space for the ring buffer and first node
-                buffer = malloc(sizeof(bb_buffer_421_t));
+                buffer = malloc(sizeof(ring_buffer_421_t));
 
-                struct bb_node_421 *frstNode = malloc(sizeof(bb_node_421_t));
+                struct node_421 *frstNode = malloc(sizeof(node_421_t));
                 memcpy(frstNode->data, "", DATA_LENGTH);
 
                 //Set the read and write to the first node (since it's empty)
@@ -31,7 +31,7 @@ long init_buffer_421(void) {
 
                 // Create the nodes of the ring buffer
                 while(count < SIZE_OF_BUFFER){
-                        struct bb_node_421 *nextNode = malloc(sizeof(bb_node_421_t));
+                        struct node_421 *nextNode = malloc(sizeof(node_421_t));
 	                memcpy(nextNode->data, "", DATA_LENGTH);
                         frstNode->next = nextNode;
                         frstNode = nextNode;
@@ -48,10 +48,10 @@ long init_buffer_421(void) {
                 // Set the buffer to initialized
                 isInitialized = true;
 
-		// Initialize your semaphores here.
-		sem_init(&mutex, 0, 1);
-		sem_init(&empty_count, 0, SIZE_OF_BUFFER);
-		sem_init(&fill_count, 0, 0);
+		// Initialize mutexes here.
+		pthread_mutex_init(&mutex, NULL);
+		pthread_cond_init(&empty_count, NULL);
+		pthread_cond_init(&fill_count, NULL);
 		return 0;
 	}
 
@@ -63,21 +63,21 @@ long enqueue_buffer_421(char * data) {
 	// Write your code to enqueue data into the buffer
 	// Check that buffer exists
 	if(isInitialized == true){
-		// Use the empty_count semaphore to BLOCK if the buffer is empty
-		sem_wait(&empty_count);
-		sem_wait(&mutex);
-
+		// Use the empty_count mutex to BLOCK if the buffer is empty
+		pthread_mutex_lock(&mutex);
+		while(buffer->length == SIZE_OF_BUFFER){
+			pthread_cond_wait(&empty_count, &mutex);
+		}
 		// Write the data from the passed char parameter to the buffer's write pointer
-                memcpy(buffer->write->data, data, DATA_LENGTH);
+               	memcpy(buffer->write->data, data, DATA_LENGTH);
 		buffer->length++;
 
 		printf("Enqueue: %c\n", buffer->write->data[0]);
-
 		buffer->write = buffer->write->next;
 
-		sem_post(&mutex);
-		sem_post(&fill_count);
+		pthread_cond_signal(&empty_count);
 
+		pthread_mutex_unlock(&mutex);
 		return 0;
 	}
 
@@ -89,23 +89,21 @@ long dequeue_buffer_421(char * data) {
 	// Write your code to dequeue data from the buffer
         // Check that buffer exists
 	if(isInitialized == true){
-		// Use the empty_count semaphore to BLOCK if the buffer is empty
-		sem_wait(&fill_count);
-		sem_wait(&mutex);
-
+		// Use the fill_count mutex to BLOCK if the buffer is empty
+                pthread_mutex_lock(&mutex);
+                while(buffer->length == 0){
+			pthread_cond_wait(&fill_count, &mutex);
+		}
 		printf("Dequeue: %c\n", buffer->read->data[0]);
 
 		// Write the buffer's read point into the passed char parameter
-                memcpy(data, buffer->read->data, DATA_LENGTH);
+	        memcpy(data, buffer->read->data, DATA_LENGTH);
 		buffer->length--;
 
-//		printf(data);
-
 		buffer->read = buffer->read->next;
+		pthread_cond_signal(&fill_count);
 
-		sem_post(&mutex);
-		sem_post(&empty_count);
-
+                pthread_mutex_unlock(&mutex);
 		return 0;
 	}
 
@@ -115,18 +113,16 @@ long dequeue_buffer_421(char * data) {
 
 long delete_buffer_421(void) {
 	// Tip: Don't call this while any process is waiting to enqueue or dequeue.
-	// Check the values of each of the semaphores. If not 0 do not allow the call.
-
-	// Destroy the semaphores
-	sem_destroy(&mutex);
-	sem_destroy(&fill_count);
-	sem_destroy(&empty_count);
+	// Destroy the mutexes
+	pthread_mutex_destroy(&mutex);
+	pthread_cond_destroy(&fill_count);
+	pthread_cond_destroy(&empty_count);
 
 	// write your code to delete buffer and other unwanted components
         // Check that buffer exists
         if(isInitialized == true){
                 // Free the buffer
-                struct bb_node_421 *temp;
+                struct node_421 *temp;
 		int count = SIZE_OF_BUFFER;
                 while(count > 0){
                         temp = buffer->read;
@@ -148,19 +144,4 @@ long delete_buffer_421(void) {
 
         // Return -1 if buffer does not exist
         return -1;
-}
-
-
-void print_semaphores(void) {
-	// You can call this method to check the status of the semaphores.
-	// Don't forget to initialize them first!
-	// YOU DO NOT NEED TO IMPLEMENT THIS FOR KERNEL SPACE.
-	int value;
-	sem_getvalue(&mutex, &value);
-	printf("sem_t mutex = %d\n", value);
-	sem_getvalue(&fill_count, &value);
-	printf("sem_t fill_count = %d\n", value);
-	sem_getvalue(&empty_count, &value);
-	printf("sem_t empty_count = %d\n", value);
-	return;
 }

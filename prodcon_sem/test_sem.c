@@ -23,11 +23,11 @@ long init_buff_syscall(void){
 }
 
 long enqueue_buff_syscall(char *data){
-        return syscall(__NR_enqueue_buffer_sem_421, *data);
+        return syscall(__NR_enqueue_buffer_sem_421, data);
 }
 
 long dequeue_buff_syscall(char *data){
-        return syscall(__NR_dequeue_buffer_sem_421, *data);
+        return syscall(__NR_dequeue_buffer_sem_421, data);
 }
 
 long del_buff_syscall(void){
@@ -36,20 +36,22 @@ long del_buff_syscall(void){
 
 
 void* producer(void* arg) {
+	// Seed for time randomization
 	srand(time(NULL));
-
 	int prd_cnt = 0;
 	int chr_cnt = 0;
 	char pass[DATA_LENGTH] = {};
 	char *input = pass;
 
 	while (prd_cnt < ITERATE_MAX){
+		// Project document outlines sleep of 10 milliseconds
 		usleep(rand() % 10);
 		char c = INPUT_VAL + '0';
 		while (chr_cnt < DATA_LENGTH){
 			pass[chr_cnt] = c;
 			chr_cnt++;
 		}
+		chr_cnt = 0;
 
 		if(INPUT_VAL == RESTART_INPUT)
 			INPUT_VAL = 0;
@@ -57,20 +59,30 @@ void* producer(void* arg) {
 			INPUT_VAL++;
 
 		enqueue_buff_syscall(input);
-		printf("Produced: %c\n", pass[0]);
+
+		// Only print out every 9 iterations
+                if(prd_cnt % RESTART_INPUT == 0)
+			printf("Produced: %c\n", pass[0]);
+
 		prd_cnt++;
-		chr_cnt = 0;
 	}
 }
 
 void* consumer(void* arg){
+        // Seed for time randomization
+        srand(time(0) + 1);
 	int con_cnt = 0;
-	char empty[DATA_LENGTH] = {'0'};
+	char empty[DATA_LENGTH];
 	char *emp_inp = empty;
         while (con_cnt < ITERATE_MAX){
-                usleep(rand() % 30);
+                // Project document outlines sleep of 10 milliseconds
+                usleep(rand() % 10);
                 dequeue_buff_syscall(emp_inp);
-		printf("Consumed: %d\n", emp_inp[0]);
+
+                // Only print out every 9 iterations
+                if(con_cnt % RESTART_INPUT == 0)
+			printf("Consumed: %c\n", empty[0]);
+
 		con_cnt++;
         }
 }

@@ -34,17 +34,18 @@ int main(int argc, char *argv[]){
 	long prntb;
 	long deltb;
 
-	// Delete the buffer before it is initialized.
+        // Delete the buffer before it is initialized.
         printf("Testing deletion of buffer before being created.\n");
-	deltb = del_buff_syscall();
-	if(deltb < 0){
-		perror("Deletion  of buffer failed");
-	}
-	else{
-		printf("Buffer was deleted.\n");
-	}
+        deltb = del_buff_syscall();
+        if(deltb < 0){
+                perror("Deletion  of buffer failed");
+        }
+        else{
+                printf("Buffer was deleted.\n");
+        }
 
 	// Insert into the buffer before it is initialized
+        printf("Insert into the buffer before it is initialized.\n");
 	insrb = insert_buff_syscall(0);
 	if(insrb < 0){
 		perror("Insert into buffer failed");
@@ -54,6 +55,7 @@ int main(int argc, char *argv[]){
 	}
 
 	// Print the buffer before it is initialized
+        printf("Print the buffer before it is initialized.\n");
 	prntb = print_buff_syscall();
 	if(prntb < 0){
 		perror("Printing of buffer failed");
@@ -63,6 +65,7 @@ int main(int argc, char *argv[]){
 	}
 
 	// Initialize the buffer
+        printf("Initialize the buffer.\n");
 	initb = init_buff_syscall();
 	if(initb < 0){
 		perror("Initialization of buffer failed");
@@ -72,6 +75,7 @@ int main(int argc, char *argv[]){
 	}
 
         // Initialize the buffer after already being initialized
+        printf("Attempt to reinitialize the buffer.\n");
         initb = init_buff_syscall();
         if(initb < 0){
                 perror("Initialization of buffer failed");
@@ -81,6 +85,7 @@ int main(int argc, char *argv[]){
         }
 
 	// Print the buffer after being initialized
+        printf("Print the buffer before it is initialized.\n");
 	prntb = print_buff_syscall();
 	if(prntb < 0){
 		perror("Printing of buffer failed");
@@ -90,6 +95,7 @@ int main(int argc, char *argv[]){
 	}
 
 	// Insert into the buffer after it is initialized
+	printf("Insert into the buffer adter it is initialized.\n");
 	int count = 0;
 	while(count < 20){
 		insrb = insert_buff_syscall(count + 1);
@@ -104,6 +110,7 @@ int main(int argc, char *argv[]){
 	}
 
 	// Print the buffer after being initialized
+	printf("Print the buffer after it is initialized and filled.\n");
 	prntb = print_buff_syscall();
 	if(prntb < 0){
 		perror("Printing of buffer failed");
@@ -112,16 +119,38 @@ int main(int argc, char *argv[]){
 		printf("Buffer was printed. Please check dmesg.\n");
 	}
 
-	// Delete the buffer before it is initialized.
+        // Delete the buffer after it is initialized.
+        printf("Testing deletion of buffer after being created.\n");
 	deltb = del_buff_syscall();
 	if(deltb < 0){
-		perror("Deletion  of buffer failed\n");
+		perror("Deletion of buffer failed\n");
 	}
 	else{
 		printf("Buffer was deleted.\n");
 	}
 
+        // Delete the buffer after it is deleted.
+        printf("Testing deletion of buffer after being deleted.\n");
+        deltb = del_buff_syscall();
+        if(deltb < 0){
+                perror("Deletion  of buffer failed");
+        }
+        else{
+                printf("Buffer was deleted.\n");
+        }
+
+	// Insert into the buffer after it is deleted
+	printf("Testing inserting into buffer after being deleted.\n");
+	insrb = insert_buff_syscall(1);
+	if(insrb < 0){
+		perror("Insert into buffer failed");
+	}
+	else{
+		printf("Value was inserted into buffer.\n");
+	}
+
 	// Print the buffer after being deleted
+	printf("Testing printing of buffer after it is deleted.\n");
 	prntb = print_buff_syscall();
 	if(prntb < 0){
 		perror("Printing of buffer failed");
@@ -129,6 +158,26 @@ int main(int argc, char *argv[]){
 	else{
 		printf("Buffer was printed. Please check dmesg.\n");
 	}
+
+        // Initialize the buffer after it is deletes
+        printf("Reinitialize the buffer after being deleted.\n");
+        initb = init_buff_syscall();
+        if(initb < 0){
+                perror("Initialization of buffer failed");
+        }
+        else{
+                printf("Buffer was initialized.\n");
+        }
+
+        // Delete the buffer after it is reinitialized.
+        printf("Delete the buffer after the buffer is reinitialized.\n");
+        deltb = del_buff_syscall();
+        if(deltb < 0){
+                perror("Deletion  of buffer failed");
+        }
+        else{
+                printf("Buffer was deleted.\n");
+        }
 
 	return 0;
 }

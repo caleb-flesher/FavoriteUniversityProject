@@ -14,13 +14,12 @@ SYSCALL_DEFINE0(init_buffer_sem_421) {
 	// Write your code to initialize buffer
        	// Allocate space for the buffer
         // Check the buffer was not already allocated
-        if(isInitialized == false){
+        if(isInitialized == 0){
                 struct bb_node_421 *frstNode;
-		long ret;
+
                 // Allocate the space for the ring buffer and first node
                 buffer = kmalloc(sizeof(bb_buffer_421_t), GFP_KERNEL);
 		frstNode = kmalloc(sizeof(bb_node_421_t), GFP_KERNEL);
-                ret = copy_from_user(frstNode->data, "", DATA_LENGTH);
 
                 //Set the read and write to the first node (since it's empty)
                 buffer->read = frstNode;
@@ -31,10 +30,8 @@ SYSCALL_DEFINE0(init_buffer_sem_421) {
 
                 // Create the nodes of the ring buffer
                 while(count < SIZE_OF_BUFFER){
-			long ret2;
                         struct bb_node_421 *nextNode;
 			nextNode = kmalloc(sizeof(bb_node_421_t), GFP_KERNEL);
-	                ret2 = copy_from_user(nextNode->data, "", DATA_LENGTH);
                         frstNode->next = nextNode;
                         frstNode = nextNode;
                         buffer->write = nextNode;
@@ -49,12 +46,15 @@ SYSCALL_DEFINE0(init_buffer_sem_421) {
                 //free(nextNode);
                 // Set the buffer to initialized
                 isInitialized = 1;
+
+		// Initialize your semaphores here.
+		sema_init(&mutex, 1);
+		sema_init(&empty_count, SIZE_OF_BUFFER);
+		sema_init(&fill_count, 0);
+		return 0;
 	}
-	// Initialize your semaphores here.
-	sema_init(&mutex, 1);
-	sema_init(&empty_count, SIZE_OF_BUFFER);
-	sema_init(&fill_count, 0);
-	return 0;
+
+	return -1;
 }
 
 
@@ -94,10 +94,10 @@ SYSCALL_DEFINE1(dequeue_buffer_sem_421, char *, data){
 		down(&fill_count);
 		down(&mutex);
 
-		printk("Dequeue: %c\n", buffer->write->data[0]);
+		printk("Dequeue: %c\n", buffer->read->data[0]);
 
 		// Write the buffer's read pointer into the passed char parameter
-                ret = copy_to_user(data, buffer->write->data, DATA_LENGTH);
+                ret = copy_to_user(data, buffer->read->data, DATA_LENGTH);
 		buffer->length--;
 
 		buffer->read = buffer->read->next;

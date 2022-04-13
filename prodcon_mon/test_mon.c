@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "buffer_sem.h"
+#include "buffer_mon.h"
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
@@ -38,7 +38,6 @@ void* producer(void* arg) {
 		// Only print out every 9 iterations
 		if(prd_cnt % RESTART_INPUT == 0){
 			printf("Produced: %c\n", pass[0]);
-			print_semaphores();
 		}
 		prd_cnt++;
 		chr_cnt = 0;
@@ -60,7 +59,6 @@ void* consumer(void* arg){
                 // Only print out every 9 iterations
                 if(con_cnt % RESTART_INPUT == 0){
 			printf("Consumed: %c\n", emp_inp[0]);
-                	print_semaphores();
 		}
 		con_cnt++;
         }
@@ -89,10 +87,6 @@ int main(int argc, char *argv[]){
 	// Test that the buffer cannot be initialized again
         printf("Testing initialization of buffer after being initialized already. This will return -1...\n");
         printf("%d\n", init_buffer_421());
-
-	// Check what the semaphores are currently
-	printf("Calling print semaphores.\n");
-	print_semaphores();
 
 	// Test the enqueue and dequeue functions after the buffer is initialized
 	// There are print_semaphores() calls in the producer/consumer to help track what is happening
