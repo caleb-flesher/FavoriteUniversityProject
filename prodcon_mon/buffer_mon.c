@@ -7,12 +7,11 @@
 
 static ring_buffer_421_t *buffer;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t fill_count = PTHREAD_COND_INITIALIZER;
-static pthread_cond_t empty_count = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t fill_count;
+static pthread_cond_t empty_count;
 static bool isInitialized = false;
 
 long init_buffer_421(void) {
-	// Write your code to initialize buffer
        	// Allocate space for the buffer
         // Check the buffer was not already allocated
         if(isInitialized == false){
@@ -43,8 +42,6 @@ long init_buffer_421(void) {
                 buffer->write->next = buffer->read;
                 buffer->read = buffer->write;
 
-                // Free the nextNode
-                //free(nextNode);
                 // Set the buffer to initialized
                 isInitialized = true;
 
@@ -60,24 +57,23 @@ long init_buffer_421(void) {
 
 
 long enqueue_buffer_421(char * data) {
-	// Write your code to enqueue data into the buffer
 	// Check that buffer exists
 	if(isInitialized == true){
-		// Use the empty_count mutex to BLOCK if the buffer is empty
+		// Use the fill_count mutex to BLOCK if the buffer is empty
 		pthread_mutex_lock(&mutex);
 		while(buffer->length == SIZE_OF_BUFFER){
-			pthread_cond_wait(&empty_count, &mutex);
+			pthread_cond_wait(&fill_count, &mutex);
 		}
 		// Write the data from the passed char parameter to the buffer's write pointer
                	memcpy(buffer->write->data, data, DATA_LENGTH);
 		buffer->length++;
-
 		printf("Enqueue: %c\n", buffer->write->data[0]);
 		buffer->write = buffer->write->next;
 
-		pthread_cond_signal(&empty_count);
-
+		// Unlock the mutex
+		pthread_cond_signal(&fill_count);
 		pthread_mutex_unlock(&mutex);
+
 		return 0;
 	}
 
@@ -86,24 +82,27 @@ long enqueue_buffer_421(char * data) {
 
 
 long dequeue_buffer_421(char * data) {
-	// Write your code to dequeue data from the buffer
         // Check that buffer exists
 	if(isInitialized == true){
-		// Use the fill_count mutex to BLOCK if the buffer is empty
+		// Use the empty_count mutex to BLOCK if the buffer is empty
                 pthread_mutex_lock(&mutex);
-                while(buffer->length == 0){
-			pthread_cond_wait(&fill_count, &mutex);
+		// This line doesn't seem correct, but this is the only way I could run
+		//	the file to completion
+                while(buffer->length == SIZE_OF_BUFFER){
+			pthread_cond_wait(&empty_count, &mutex);
 		}
+
 		printf("Dequeue: %c\n", buffer->read->data[0]);
 
 		// Write the buffer's read point into the passed char parameter
 	        memcpy(data, buffer->read->data, DATA_LENGTH);
 		buffer->length--;
-
 		buffer->read = buffer->read->next;
-		pthread_cond_signal(&fill_count);
 
-                pthread_mutex_unlock(&mutex);
+		//Unlock the mutex
+		pthread_cond_signal(&empty_count);
+		pthread_mutex_unlock(&mutex);
+
 		return 0;
 	}
 

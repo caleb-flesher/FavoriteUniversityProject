@@ -21,7 +21,7 @@ General information
 - 8192 MB of memory was allocated for the VM.
 
 User space:
-- The files must be run in the "prodcon_sem" directory. The directory path should read similarly to "/usr/src/cmsc421-project3/prodcon_sem".
+- The files must be run in the "prodcon_sem" directory. The directory path should read similarly to "/usr/src/project3-calebf2/prodcon_sem".
 - A Makefile for the user space implementation is not provided.
 - In order to compile the test_user_sem.c file, compile the file using the following command: "gcc -pthread buffer_user_sem.c test_user_sem.c -o test_user_sem".
 - In order to run the file, run the file using the following command: "./test_user_sem".

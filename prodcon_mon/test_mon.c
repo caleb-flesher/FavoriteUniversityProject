@@ -46,7 +46,7 @@ void* producer(void* arg) {
 
 void* consumer(void* arg){
 	// Seed for time randomization
-	srand(time(0) + 1);
+//	srand(time(0) + 1);
 	int con_cnt = 0;
 	char empty[DATA_LENGTH] = {};
 	char *emp_inp = empty;

@@ -22,7 +22,7 @@ General information
 - 8192 MB of memory was allocated for the VM.
 
 User space:
-- The files must be run in the "buffer" directory. The directory path should read similarly to "/usr/src/cmsc421-project3/buffer".
+- The files must be run in the "buffer" directory. The directory path should read similarly to "/usr/src/project3-calebf2/buffer".
 - A Makefile for the user space implementation is not provided.
 - In order to compile the test_user.c file, compile the file using the following command: "gcc test_user.c -o test_user".
 - In order to run the file, run the file using the following command: "./test_user". 
@@ -50,6 +50,3 @@ contents from the buffer_user.c file and changed the functions (such as free to 
 space. After lengthy debugging, I found one of the major issues in the kernel space was printing the contents of the buffer. The kernel 
 implementation would print a random garbage value repeatedly. After speaking with Rushabh, I discovered I never passed the parameter into the syscall 
 for the insert function. Upon this discovery, I edited the test file, recompiled, and run the test with success.
-
-
-
