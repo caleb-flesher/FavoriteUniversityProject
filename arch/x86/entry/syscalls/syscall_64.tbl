@@ -370,7 +370,6 @@
 447	common	enqueue_buffer_sem_421	sys_enqueue_buffer_sem_421
 448	common	dequeue_buffer_sem_421	sys_dequeue_buffer_sem_421
 449	common	delete_buffer_sem_421	sys_delete_buffer_sem_421
-450	common	print_buffer_sem_421	sys_print_buffer_sem_421	
 
 #
 # Due to a historical design error, certain syscalls are numbered differently

@@ -35,6 +35,7 @@ int main(int argc, char *argv[]){
 	long deltb;
 
 	// Delete the buffer before it is initialized.
+        printf("Testing deletion of buffer before being created.\n");
 	deltb = del_buff_syscall();
 	if(deltb < 0){
 		perror("Deletion  of buffer failed");
@@ -69,6 +70,15 @@ int main(int argc, char *argv[]){
 	else{
 		printf("Buffer was initialized.\n");
 	}
+
+        // Initialize the buffer after already being initialized
+        initb = init_buff_syscall();
+        if(initb < 0){
+                perror("Initialization of buffer failed");
+        }
+        else{
+                printf("Buffer was initialized.\n");
+        }
 
 	// Print the buffer after being initialized
 	prntb = print_buff_syscall();

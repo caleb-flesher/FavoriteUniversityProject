@@ -31,8 +31,8 @@ void* producer(void* arg) {
 		else
 			INPUT_VAL++;
 
-		printf("Produced: %c\n", pass[0]);
 		enqueue_buffer_421(input);
+		printf("Produced: %c\n", pass[0]);
 		print_semaphores();
 		prd_cnt++;
 		chr_cnt = 0;
@@ -40,15 +40,13 @@ void* producer(void* arg) {
 }
 
 void* consumer(void* arg){
-	srand(time(0));
 	int con_cnt = 0;
-	char tracker = 0;
-	char consume[DATA_LENGTH] = {};
-	char *con_inp = consume;
+	char empty[DATA_LENGTH] = {'0'};
+	char *emp_inp = empty;
         while (con_cnt < ITERATE_MAX){
-                usleep(rand() % 10);
-                dequeue_buffer_421(con_inp);
-		printf("Consumed: %c\n", con_inp[0]);
+                usleep(rand() % 30);
+                dequeue_buffer_421(emp_inp);
+//		printf("Consumed: %d\n", con_cnt);
                 print_semaphores();
 		con_cnt++;
         }
@@ -81,9 +79,6 @@ int main(int argc, char *argv[]){
 	printf("Testing dequeue from buffer after being created. This will return 0...\n");
         printf("%d\n", pthread_create(&threadId2, NULL, consumer, "val"));
 
-//        printf("Testing deletion of buffer during enqueue/dequeue. This will return -1...\n");
-//        printf("%d\n", delete_buffer_421());
-
 	pthread_join(threadId1, NULL);
 	pthread_join(threadId2, NULL);
 
@@ -98,6 +93,12 @@ int main(int argc, char *argv[]){
 
 	printf("Testing dequeue from buffer after being deleted. This will return -1...\n");
         printf("%d\n", dequeue_buffer_421("random"));
+
+        printf("Testing reinitialization of buffer. This will return 0...\n");
+        printf("%d\n", init_buffer_421());
+
+        printf("Testing deletion of buffer after being recreated. This will return 0...\n");
+        printf("%d\n", delete_buffer_421());
 
 	return 0;
 }

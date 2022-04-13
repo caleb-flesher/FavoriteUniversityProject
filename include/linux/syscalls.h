@@ -1381,6 +1381,5 @@ asmlinkage long sys_init_buffer_sem_421(void);
 asmlinkage long sys_enqueue_buffer_sem_421(char*);
 asmlinkage long sys_dequeue_buffer_sem_421(char*);
 asmlinkage long sys_delete_buffer_sem_421(void);
-asmlinkage void sys_print_buffer_sem_421(void);
 
 #endif

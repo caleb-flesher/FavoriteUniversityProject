@@ -1,25 +1,26 @@
+// C file for the semaphore buffer in kernel space
 #include "buffer_sem.h"
-#include <pthread.h>
 #include <linux/kernel.h>
 #include <linux/syscalls.h>
 
 static bb_buffer_421_t *buffer;
-static sem_t mutex;
-static sem_t fill_count;
-static sem_t empty_count;
+static struct semaphore mutex;
+static struct semaphore fill_count;
+static struct semaphore empty_count;
 static int isInitialized = 0;
 static int count;
 
-long init_buffer_421(void) {
+SYSCALL_DEFINE0(init_buffer_sem_421) {
 	// Write your code to initialize buffer
        	// Allocate space for the buffer
         // Check the buffer was not already allocated
         if(isInitialized == false){
                 struct bb_node_421 *frstNode;
+		long ret;
                 // Allocate the space for the ring buffer and first node
                 buffer = kmalloc(sizeof(bb_buffer_421_t), GFP_KERNEL);
 		frstNode = kmalloc(sizeof(bb_node_421_t), GFP_KERNEL);
-                copy_from_user(frstNode->data, "", DATA_LENGTH);
+                ret = copy_from_user(frstNode->data, "", DATA_LENGTH);
 
                 //Set the read and write to the first node (since it's empty)
                 buffer->read = frstNode;
@@ -30,9 +31,10 @@ long init_buffer_421(void) {
 
                 // Create the nodes of the ring buffer
                 while(count < SIZE_OF_BUFFER){
+			long ret2;
                         struct bb_node_421 *nextNode;
 			nextNode = kmalloc(sizeof(bb_node_421_t), GFP_KERNEL);
-	                copy_from_user(nextNode->data, "", DATA_LENGTH);
+	                ret2 = copy_from_user(nextNode->data, "", DATA_LENGTH);
                         frstNode->next = nextNode;
                         frstNode = nextNode;
                         buffer->write = nextNode;
@@ -49,31 +51,32 @@ long init_buffer_421(void) {
                 isInitialized = 1;
 	}
 	// Initialize your semaphores here.
-	sem_init(&mutex, 0, 1);
-	sem_init(&empty_count, 0, SIZE_OF_BUFFER);
-	sem_init(&fill_count, 0, 0);
+	sema_init(&mutex, 1);
+	sema_init(&empty_count, SIZE_OF_BUFFER);
+	sema_init(&fill_count, 0);
 	return 0;
 }
 
 
-long enqueue_buffer_421(char * data) {
+SYSCALL_DEFINE1(enqueue_buffer_sem_421, char *, data){
 	// Write your code to enqueue data into the buffer
 	// Check that buffer exists
 	if(isInitialized == 1){
+		long ret;
 		// Use the empty_count semaphore to BLOCK if the buffer is empty
-		sem_wait(&empty_count);
-		sem_wait(&mutex);
+		down(&empty_count);
+		down(&mutex);
 
 		// Write the data from the passed char parameter to the buffer's write pointer
-                copy_from_user(buffer->write->data, data, DATA_LENGTH);
+                ret = copy_from_user(buffer->write->data, data, DATA_LENGTH);
 		buffer->length++;
 
 		printk("Enqueue: %c\n", buffer->write->data[0]);
 
 		buffer->write = buffer->write->next;
 
-		sem_post(&mutex);
-		sem_post(&fill_count);
+		up(&mutex);
+		up(&fill_count);
 
 		return 0;
 	}
@@ -82,24 +85,25 @@ long enqueue_buffer_421(char * data) {
 }
 
 
-long dequeue_buffer_421(char * data) {
+SYSCALL_DEFINE1(dequeue_buffer_sem_421, char *, data){
 	// Write your code to dequeue data from the buffer
         // Check that buffer exists
 	if(isInitialized == 1){
+		long ret;
 		// Use the empty_count semaphore to BLOCK if the buffer is empty
-		sem_wait(&fill_count);
-		sem_wait(&mutex);
+		down(&fill_count);
+		down(&mutex);
 
 		printk("Dequeue: %c\n", buffer->write->data[0]);
 
-		// Write the buffer's read point into the passed char parameter
-                copy_to_user(data, buffer->write->data, DATA_LENGTH);
+		// Write the buffer's read pointer into the passed char parameter
+                ret = copy_to_user(data, buffer->write->data, DATA_LENGTH);
 		buffer->length--;
 
 		buffer->read = buffer->read->next;
 
-		sem_post(&mutex);
-		sem_post(&empty_count);
+		up(&mutex);
+		up(&empty_count);
 
 		return 0;
 	}
@@ -108,14 +112,8 @@ long dequeue_buffer_421(char * data) {
 }
 
 
-long delete_buffer_421(void) {
+SYSCALL_DEFINE0(delete_buffer_sem_421){
 	// Tip: Don't call this while any process is waiting to enqueue or dequeue.
-	// Check the values of each of the semaphores. If not 0 do not allow the call.
-
-	// Destroy the semaphores
-	sem_destroy(&mutex);
-	sem_destroy(&fill_count);
-	sem_destroy(&empty_count);
 
 	// write your code to delete buffer and other unwanted components
         // Check that buffer exists
@@ -143,19 +141,4 @@ long delete_buffer_421(void) {
 
         // Return -1 if buffer does not exist
         return -1;
-}
-
-
-void print_semaphores(void) {
-	// You can call this method to check the status of the semaphores.
-	// Don't forget to initialize them first!
-	// YOU DO NOT NEED TO IMPLEMENT THIS FOR KERNEL SPACE.
-	int value;
-	sem_getvalue(&mutex, &value);
-	printk("sem_t mutex = %d\n", value);
-	sem_getvalue(&fill_count, &value);
-	printk("sem_t fill_count = %d\n", value);
-	sem_getvalue(&empty_count, &value);
-	printk("sem_t empty_count = %d\n", value);
-	return;
 }

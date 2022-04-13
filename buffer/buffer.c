@@ -3,7 +3,7 @@
 #include <linux/kernel.h>
 #include <linux/syscalls.h>
 
-static ring_buffer_421 *usrBuf;
+static struct ring_buffer_421 *usrBuf;
 static int isInitialized = 0;
 static int count;
 
